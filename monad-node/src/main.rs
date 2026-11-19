@@ -769,10 +769,6 @@ where
         peer_discovery_config.self_direct_udp_port.is_some(),
         network_config.direct_udp_bind_address_port.is_some()
     );
-    assert_eq!(
-        peer_discovery_config.self_encrypted_tcp_port.is_some(),
-        network_config.encrypted_tcp_bind_address_port.is_some()
-    );
 
     // initial set of peers
     let bootstrap_peers: BTreeMap<_, _> = bootstrap_nodes
@@ -876,6 +872,7 @@ where
             udp_message_max_age_ms: network_config.udp_message_max_age_ms,
             sig_verification_rate_limit: network_config.signature_verifications_per_second,
             primary_instance: RaptorCastConfigPrimary {
+                enable_encrypted_tcp: network_config.enable_encrypted_tcp,
                 raptor10_redundancy: 2.5f32,
                 fullnode_dedicated: full_nodes
                     .iter()
