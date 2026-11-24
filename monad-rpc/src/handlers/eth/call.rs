@@ -376,7 +376,6 @@ pub async fn fill_gas_params<T: Triedb>(
     header: &mut Header,
     state_overrides: &StateOverrideSet,
     eth_call_provider_gas_limit: U256,
-    validation: bool,
 ) -> Result<(), JsonRpcError> {
     // Geth checks that the sender can pay for gas if a nonzero gas price is populated.
     // Set the base fee to zero if gas price is missing or explicitly zero, preserving
@@ -393,11 +392,9 @@ pub async fn fill_gas_params<T: Triedb>(
             tx.fill_gas_prices(U256::from(header.base_fee_per_gas.unwrap_or_default()))?;
 
             if tx.gas.is_none() {
-                let allowance = if validation {
-                    sender_gas_allowance(triedb_env, block_key, header, tx, state_overrides).await?
-                } else {
-                    header.gas_limit
-                };
+                let allowance =
+                    sender_gas_allowance(triedb_env, block_key, header, tx, state_overrides)
+                        .await?;
                 tx.gas = Some(U256::from(allowance).min(eth_call_provider_gas_limit));
             }
         }
@@ -632,7 +629,6 @@ async fn prepare_eth_call_at_block<T: Triedb + TriedbPath>(
         &mut header.header,
         &state_overrides,
         U256::from(eth_call_provider_gas_limit),
-        true,
     )
     .await?;
 
@@ -1435,7 +1431,6 @@ mod tests {
             &mut header,
             &state_overrides,
             U256::MAX,
-            true,
         )
         .await;
         assert!(result.is_ok());
@@ -1462,7 +1457,6 @@ mod tests {
             &mut header,
             &state_overrides,
             U256::MAX,
-            true,
         )
         .await;
         assert!(result.is_ok());
@@ -1489,7 +1483,6 @@ mod tests {
             &mut header,
             &state_overrides,
             U256::MAX,
-            true,
         )
         .await;
         assert!(result.is_err());
@@ -1512,7 +1505,6 @@ mod tests {
             &mut header,
             &state_overrides,
             U256::from(100),
-            true,
         )
         .await;
         assert!(result.is_ok());
@@ -1575,7 +1567,6 @@ mod tests {
                             &mut header,
                             &state_overrides,
                             provider_gas_limit,
-                            validation,
                         )
                         .await;
 
@@ -1628,7 +1619,6 @@ mod tests {
             &mut header,
             &state_overrides,
             U256::MAX,
-            true,
         )
         .await;
         assert!(result.is_ok());
@@ -1657,7 +1647,6 @@ mod tests {
             &mut header,
             &state_overrides,
             U256::MAX,
-            true,
         )
         .await;
         assert!(result.is_ok());
@@ -1683,7 +1672,6 @@ mod tests {
             &mut header,
             &state_overrides,
             U256::MAX,
-            true,
         )
         .await;
         assert!(result.is_ok());
@@ -1710,7 +1698,6 @@ mod tests {
             &mut header,
             &state_overrides,
             U256::MAX,
-            true,
         )
         .await;
         assert!(result.is_err());

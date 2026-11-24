@@ -60,9 +60,8 @@ pub struct MonadSimulation {
     pub trace_transfers: bool,
 }
 
-// TODO(dhil): Consider whether to flip this to `false` to align with Geth.
 fn validation_default() -> bool {
-    true
+    false
 }
 
 #[derive(Debug, Deserialize, schemars::JsonSchema)]
@@ -96,11 +95,10 @@ async fn fill_simulation_gas_params<T: Triedb>(
     for call in calls {
         call.fill_gas_prices(base_fee)?;
         if call.gas.is_none() {
-            let allowance = if validation {
-                sender_gas_allowance(triedb_env, block_key, header, call, state_overrides).await?
-            } else {
-                header.gas_limit
-            };
+            let allowance =
+                sender_gas_allowance(triedb_env, block_key, header, call, state_overrides)
+                    .await
+                    .unwrap_or(header.gas_limit);
             call.gas = Some(U256::from(allowance).min(U256::from(call_gas_limit)));
         }
     }
