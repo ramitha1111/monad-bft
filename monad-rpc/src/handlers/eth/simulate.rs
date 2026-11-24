@@ -312,10 +312,7 @@ mod tests {
     use super::{fill_simulation_gas_params, MonadSimulateParams};
     use crate::{
         handlers::eth::call::{CallRequest, GasPriceDetails},
-        types::{
-            eth_json::{BlockTagOrHash, BlockTags},
-            jsonrpc::JsonRpcError,
-        },
+        types::eth_json::{BlockTagOrHash, BlockTags},
     };
 
     #[tokio::test]
@@ -451,17 +448,8 @@ mod tests {
                         )
                         .await;
 
-                        if validation && balance < value {
-                            assert_eq!(result, Err(JsonRpcError::insufficient_funds()));
-                            continue;
-                        }
-
                         result.unwrap();
-                        let allowance = if validation {
-                            (balance - value) / calls[0].max_fee_per_gas().unwrap()
-                        } else {
-                            U256::from(100)
-                        };
+                        let allowance = (balance - value) / calls[0].max_fee_per_gas().unwrap();
                         assert_eq!(
                             calls[0].gas,
                             Some(
@@ -614,8 +602,7 @@ mod tests {
         assert!(params.simulation.block_state_calls[0]
             .state_overrides
             .is_empty());
-        // TODO(dhil): We default to validation mode 'true' -- reconsider defaulting to 'false'
-        assert!(params.simulation.validation);
+        assert!(!params.simulation.validation);
         assert!(!params.simulation.trace_transfers);
     }
 
