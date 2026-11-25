@@ -39,6 +39,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-26.04-32
+    timeout-minutes: 45
 
     container:
       image: ghcr.io/${{ github.repository }}/builder:master
